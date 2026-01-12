@@ -8,9 +8,13 @@ export async function POST(request: NextRequest) {
     const text = formData.get('text') as string || '';
     const title = formData.get('title') as string || '';
 
+    console.log('Share POST received:', { url, text, title });
+
     // 共有されたデータからURLを抽出
     // text内にURLが含まれている場合もある（Instagramなど）
     const extractedUrl = extractUrl(url || text);
+
+    console.log('Extracted URL:', extractedUrl);
 
     // クエリパラメータとしてリダイレクト
     const redirectUrl = new URL('/', request.url);
@@ -21,6 +25,8 @@ export async function POST(request: NextRequest) {
     if (title) {
       redirectUrl.searchParams.set('title', title);
     }
+
+    console.log('Redirecting to:', redirectUrl.toString());
 
     return NextResponse.redirect(redirectUrl);
   } catch (error) {

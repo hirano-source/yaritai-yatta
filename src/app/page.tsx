@@ -65,7 +65,10 @@ function HomeContent() {
     const url = searchParams.get('url');
     const title = searchParams.get('title');
 
+    console.log('Share params:', { shared, url, title });
+
     if (shared === 'true') {
+      console.log('Opening modal with shared data');
       setSharedUrl(url);
       setSharedTitle(title);
       setIsModalOpen(true);
