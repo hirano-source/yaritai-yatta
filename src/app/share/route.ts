@@ -11,24 +11,38 @@ export async function POST(request: NextRequest) {
     console.log('Share POST received:', { url, text, title });
 
     // 共有されたデータからURLを抽出
-    // text内にURLが含まれている場合もある（Instagramなど）
     const extractedUrl = extractUrl(url || text);
 
     console.log('Extracted URL:', extractedUrl);
 
-    // クエリパラメータとしてリダイレクト
-    const redirectUrl = new URL('/', request.url);
-    redirectUrl.searchParams.set('shared', 'true');
+    // クエリパラメータを構築
+    const params = new URLSearchParams();
+    params.set('shared', 'true');
     if (extractedUrl) {
-      redirectUrl.searchParams.set('url', extractedUrl);
+      params.set('url', extractedUrl);
     }
     if (title) {
-      redirectUrl.searchParams.set('title', title);
+      params.set('title', title);
     }
 
-    console.log('Redirecting to:', redirectUrl.toString());
+    const redirectPath = `/?${params.toString()}`;
 
-    return NextResponse.redirect(redirectUrl);
+    // HTMLでクライアントサイドリダイレクト（POSTリダイレクトの問題を回避）
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0;url=${redirectPath}">
+          <script>window.location.href = "${redirectPath}";</script>
+        </head>
+        <body>リダイレクト中...</body>
+      </html>
+    `;
+
+    return new NextResponse(html, {
+      headers: { 'Content-Type': 'text/html' },
+    });
   } catch (error) {
     console.error('Share target error:', error);
     return NextResponse.redirect(new URL('/', request.url));
