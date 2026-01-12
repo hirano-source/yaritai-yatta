@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地図確認</title>
+    <style>
+        body { font-family: sans-serif; background: #f3f4f6; padding: 20px; }
+        .container { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 800px; margin: 0 auto; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h3 { font-size: 16px; margin-top: 0; color: #374151; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .map-container { width: 100%; }
+        .map-container img, .map-container object { width: 100%; height: auto; }
+        .info { margin-top: 12px; font-size: 14px; color: #374151; min-height: 24px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h1 style="text-align:center; color:#374151; margin-bottom: 30px;">地図確認</h1>
+
+<div class="container">
+    <div class="card">
+        <h3>日本地図（47都道府県）</h3>
+        <div class="map-container">
+            <object data="/japan-map.svg" type="image/svg+xml" id="japan-map"></object>
+        </div>
+        <div class="info" id="info-japan">都道府県をクリック</div>
+    </div>
+
+    <div class="card">
+        <h3>世界地図</h3>
+        <div class="map-container">
+            <object data="/world-map.svg" type="image/svg+xml" id="world-map"></object>
+        </div>
+        <div class="info" id="info-world">国をクリック</div>
+    </div>
+</div>
+
+<script>
+    // 日本地図のクリックイベント
+    document.getElementById('japan-map').addEventListener('load', function() {
+        const svgDoc = this.contentDocument;
+        const prefectures = svgDoc.querySelectorAll('.prefecture');
+
+        prefectures.forEach(pref => {
+            pref.style.cursor = 'pointer';
+            pref.addEventListener('click', () => {
+                // リセット
+                prefectures.forEach(p => {
+                    p.querySelectorAll('polygon, path').forEach(el => el.style.fill = '#EEEEEE');
+                });
+                // 選択
+                pref.querySelectorAll('polygon, path').forEach(el => el.style.fill = '#3B82F6');
+                // ラベル表示
+                const title = pref.querySelector('title');
+                if (title) {
+                    document.getElementById('info-japan').textContent = title.textContent;
+                }
+            });
+            pref.addEventListener('mouseenter', () => {
+                pref.querySelectorAll('polygon, path').forEach(el => {
+                    if (el.style.fill !== 'rgb(59, 130, 246)') {
+                        el.style.fill = '#93C5FD';
+                    }
+                });
+            });
+            pref.addEventListener('mouseleave', () => {
+                pref.querySelectorAll('polygon, path').forEach(el => {
+                    if (el.style.fill !== 'rgb(59, 130, 246)') {
+                        el.style.fill = '#EEEEEE';
+                    }
+                });
+            });
+        });
+    });
+
+    // 世界地図のクリックイベント
+    document.getElementById('world-map').addEventListener('load', function() {
+        const svgDoc = this.contentDocument;
+        const countries = svgDoc.querySelectorAll('path[id]');
+
+        countries.forEach(country => {
+            country.style.cursor = 'pointer';
+            country.addEventListener('click', () => {
+                // リセット
+                countries.forEach(c => c.style.fill = '');
+                // 選択
+                country.style.fill = '#3B82F6';
+                // ラベル表示
+                const id = country.getAttribute('id');
+                document.getElementById('info-world').textContent = id;
+            });
+            country.addEventListener('mouseenter', () => {
+                if (country.style.fill !== '#3B82F6') {
+                    country.style.fill = '#93C5FD';
+                }
+            });
+            country.addEventListener('mouseleave', () => {
+                if (country.style.fill !== '#3B82F6') {
+                    country.style.fill = '';
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
