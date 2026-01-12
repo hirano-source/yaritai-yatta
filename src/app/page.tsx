@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Tab, Group } from '@/types';
 import { MOCK_STOCKS, MOCK_PLANS } from '@/lib/mock-data';
@@ -32,7 +32,7 @@ const getHeaderTitle = (tab: Tab): string => {
   }
 };
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [currentGroup, setCurrentGroup] = useState<Group>('family');
@@ -192,5 +192,13 @@ export default function Home() {
         />
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">読み込み中...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
